@@ -31,7 +31,7 @@ jobs:
       - name: Preparar site
         run: |
           mkdir _site
-          cp index.html style.css app.js router.js sw.js icon.svg icon-192.png icon-512.png manifest.webmanifest _site/
+          cp index.html style.css app.js router.js line37.js sw.js icon.svg icon-192.png icon-512.png manifest.webmanifest _site/
           cp -r data _site/data
       - uses: actions/upload-pages-artifact@v3
         with:

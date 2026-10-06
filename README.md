@@ -4,6 +4,8 @@ Aplicação independente em português para consultar transportes de Coimbra, se
 
 ## O que funciona
 
+- Atalho **37: Vale das Flores → Armando Gonçalves** no início e em **Linhas**, com paragens ordenadas via HUC, variantes e partidas de Vale das Flores por data. A continuidade é apresentada como percurso de referência: a fonte separa viagens nos HUC e não permite confirmar o mesmo veículo nem a hora de chegada a Armando Gonçalves. O planeador geral mantém as regras de transbordo existentes.
+
 - Consulta por número no separador **Linhas** (por exemplo, **37**), com todas as paragens ordenadas de cada sentido/variante e localização no mapa. Os percursos são extraídos das viagens dos dados carregados; a lista não garante circulação numa data específica.
 
 - Pesquisa entre paragens dos SMTUC ou Metro Mondego, com partidas programadas.
