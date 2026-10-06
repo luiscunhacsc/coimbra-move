@@ -1,4 +1,5 @@
 import{plan,departures}from'./router.js';
+import{reference37,referenceDepartures}from'./line37.js';
 const $=id=>document.getElementById(id),escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();let data,selected={from:null,to:null},favorites=[];
 try{favorites=JSON.parse(localStorage.getItem('coimbra-favorites')||'[]')}catch{}if(!Array.isArray(favorites))favorites=[];
 function lisbon(){const p=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Lisbon',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).map(x=>[x.type,x.value]));return{date:`${p.year}-${p.month}-${p.day}`,time:`${p.hour}:${p.minute}`}}
@@ -33,9 +34,37 @@ function renderLines(){
  const query=norm($('lineQuery').value.trim()),groups=new Map();
  data.routes.forEach((r,i)=>{const k=r[2]+':'+r[0];if(!groups.has(k))groups.set(k,{number:r[0],operator:r[2],ids:[],names:[]});const g=groups.get(k);g.ids.push(i);g.names.push(r[1])});
  const box=$('lineList');box.replaceChildren();
+ if(!query||norm('37 Vale das Flores Armando Gonçalves').includes(query)){const b=document.createElement('button');b.className='primary';b.textContent='37 · Vale das Flores → Armando Gonçalves';b.onclick=showReference37;box.append(b)}
  const matches=[...groups.values()].filter(g=>norm([g.number,g.operator,...g.names].join(' ')).includes(query)).sort((a,b)=>a.number.localeCompare(b.number,'pt',{numeric:true}));
  for(const g of matches){const b=document.createElement('button');b.className='secondary';b.textContent=`${g.number} · ${g.operator} · ${g.names[0]}`;b.onclick=()=>showLine(g);box.append(b)}
  if(!matches.length)box.textContent='Nenhuma linha encontrada.';
+}
+
+function showReference37(){
+ if(!data)return;
+ tab('lines');
+ const box=$('results'),patterns=reference37(data);$('mapBox').hidden=true;
+ box.innerHTML='<p class="eyebrow">O TEU PERCURSO · LINHA 37</p><h2>Vale das Flores → Armando Gonçalves</h2><p>Via Hospitais da Universidade de Coimbra (HUC).</p>';
+ if(!patterns.length){box.innerHTML+='<p class="notice">Este percurso não está disponível nos dados carregados.</p>';return}
+ const field=document.createElement('div');field.className='field';
+ const label=document.createElement('label');label.htmlFor='referenceVariant';label.textContent='PERCURSO';
+ const select=document.createElement('select');select.id='referenceVariant';
+ patterns.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`${p.stops.some(s=>data.stops[s][0]==='I.P.O.')?'Via IPO':'Via HUC'} · ${p.stops.length} paragens`;select.append(o)});
+ field.append(label,select);box.append(field);
+ const dateLabel=document.createElement('label');dateLabel.htmlFor='referenceDate';dateLabel.textContent='DIA DA VIAGEM';
+ const date=document.createElement('input');date.id='referenceDate';date.type='date';date.value=$('date').value||lisbon().date;
+ const dateField=document.createElement('div');dateField.className='field';dateField.append(dateLabel,date);box.append(dateField);
+ const times=document.createElement('div');times.setAttribute('aria-live','polite');box.append(times);
+ const note=document.createElement('p');note.className='small';note.textContent='Percurso de referência via HUC. Os dados separam as viagens nos HUC e não identificam a continuidade do veículo. As horas abaixo são partidas de Vale das Flores para os HUC; não permitem calcular a chegada a Armando Gonçalves nem confirmar quais continuam no mesmo autocarro.';box.append(note);
+ const list=document.createElement('ol');list.className='line-stops';box.append(list);
+ function render(){
+  const pattern=patterns[Number(select.value)],hours=date.value?referenceDepartures(data,pattern,date.value):null;
+  times.replaceChildren();const heading=document.createElement('h3');heading.textContent='Partidas de Vale das Flores para os HUC';times.append(heading);
+  const p=document.createElement('p');p.textContent=!date.value?'Escolhe uma data.':hours===null?'Sem dados válidos para esta data.':hours.length?hours.map(time).join(' · '):'Sem partidas programadas para este percurso nesta data.';times.append(p);
+  list.replaceChildren();for(const i of pattern.stops){const li=document.createElement('li'),b=document.createElement('button');b.textContent=data.stops[i][0]==='Rua Paulo Quintela (Vale das Flores)'?'Vale das Flores':data.stops[i][0];b.onclick=()=>showMap(i);li.append(b);list.append(li)}
+ }
+ select.onchange=()=>{$('mapBox').hidden=true;render()};date.onchange=render;render();
+ if(innerWidth<730)box.scrollIntoView({behavior:'smooth',block:'start'});
 }
 $('lineQuery').oninput=renderLines;
 function showLine(group){
