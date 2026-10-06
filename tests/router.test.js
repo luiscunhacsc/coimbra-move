@@ -1,0 +1,8 @@
+import{test}from'node:test';import assert from'node:assert/strict';import{plan,departures}from'../router.js';
+const date='2026-10-06',base=()=>({stops:[['A'],['B'],['C']],routes:[['1','A–C','SMTUC']],services:[[date]],trips:[]});const trip=(calls,s=0)=>[0,[s],'C',calls.map(([stop,a,d,board=1,alight=1])=>[stop,a,d??a,board,alight])];
+test('direct trip requires boarding at or after requested departure',()=>{const d=base();d.trips=[trip([[0,3600],[1,4200],[2,4800]])];assert.equal(plan(d,0,2,date,3599)[0].time,4800);assert.equal(plan(d,0,2,date,3601).length,0)});
+test('transfer buffer: rejects 4min and accepts 5min',()=>{const d=base();d.trips=[trip([[0,3600],[1,4200]]),trip([[1,4440],[2,4700]]),trip([[1,4500],[2,5000]])];assert.equal(plan(d,0,2,date,3500,1)[0].time,5000);assert.equal(plan(d,0,2,date,3500,0).length,0)});
+test('calendar exclusions and pickup/dropoff restrictions',()=>{const d=base();d.services.push(['2026-10-07']);d.trips=[trip([[0,3600],[2,4800]],1),trip([[0,3600,3600,0],[2,4800]])];assert.equal(plan(d,0,2,date,3500).length,0);d.trips=[trip([[0,3600],[2,4800,4800,1,0]])];assert.equal(plan(d,0,2,date,3500).length,0)});
+test('previous service day after midnight',()=>{const d=base();d.services=[['2026-10-05']];d.trips=[trip([[0,87000],[2,87600]])];assert.equal(plan(d,0,2,date,300)[0].time,1200);assert.equal(departures(d,0,date,300)[0].time,600)});
+test('next-day departure across midnight',()=>{const d=base();d.services=[['2026-10-07']];d.trips=[trip([[0,600],[2,1200]])];assert.equal(plan(d,0,2,date,86000)[0].time,87600)});
+test('same vehicle needs no transfer margin; arrival preserved',()=>{const d=base();d.trips=[trip([[0,3600],[1,4200,4500],[2,4800]])];assert.equal(plan(d,0,2,date,3600,0)[0].time,4800)});

@@ -1,0 +1,48 @@
+name: Atualizar horários e publicar
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Atualizar dados oficiais (falha impede publicação)
+        run: python scripts/update_data.py
+      - name: Testar cálculo de percursos
+        run: node --test tests/*.test.js
+      - uses: actions/configure-pages@v5
+      - name: Preparar site
+        run: |
+          mkdir _site
+          cp index.html style.css app.js router.js sw.js icon.svg icon-192.png icon-512.png manifest.webmanifest _site/
+          cp -r data _site/data
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
