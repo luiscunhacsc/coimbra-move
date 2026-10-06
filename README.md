@@ -4,6 +4,8 @@ Aplicação independente em português para consultar transportes de Coimbra, se
 
 ## O que funciona
 
+- Consulta por número no separador **Linhas** (por exemplo, **37**), com todas as paragens ordenadas de cada sentido/variante e localização no mapa. Os percursos são extraídos das viagens dos dados carregados; a lista não garante circulação numa data específica.
+
 - Pesquisa entre paragens dos SMTUC ou Metro Mondego, com partidas programadas.
 - Melhor chegada encontrada para cada número de veículos, até dois transbordos, numa janela de quatro horas. Suporte a horários após meia-noite e dias de circulação específicos.
 - Transbordos apenas no mesmo identificador de paragem, com cinco minutos de margem. **Não há transferências entre os operadores nesta versão**, pois os identificadores são distintos e faltam caminhos pedonais validados.
