@@ -4,6 +4,9 @@ Aplicação independente em português para consultar transportes de Coimbra, se
 
 ## O que funciona
 
+- Cartão permanente da linha 37 com **ida e regresso**, seleção de hoje/amanhã e grelha de partidas. Selecionar uma partida mostra as horas de passagem nas paragens do segmento disponível. O regresso usa viagens reais desde Armando Gonçalves; não inverte artificialmente as paragens da ida. A continuação da ida depois dos HUC mantém a hora desconhecida.
+- Pesquisa de paragens com contagem de resultados, apresentação até 100 resultados e indicação para refinar pesquisas maiores.
+
 - Atalho **37: Vale das Flores → Armando Gonçalves** no início e em **Linhas**, com paragens ordenadas via HUC, variantes e partidas de Vale das Flores por data. A continuidade é apresentada como percurso de referência: a fonte separa viagens nos HUC e não permite confirmar o mesmo veículo nem a hora de chegada a Armando Gonçalves. O planeador geral mantém as regras de transbordo existentes.
 
 - Consulta por número no separador **Linhas** (por exemplo, **37**), com todas as paragens ordenadas de cada sentido/variante e localização no mapa. Os percursos são extraídos das viagens dos dados carregados; a lista não garante circulação numa data específica.
